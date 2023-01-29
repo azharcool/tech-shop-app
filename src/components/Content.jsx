@@ -18,6 +18,7 @@ function Content(props) {
                     onClick={props.handleChange}
                     // onChange={() => handleChange(order.id)}
                     id={order.id}
+
                   />
                   <span>{order.title}</span>
                 </div>

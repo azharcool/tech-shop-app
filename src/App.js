@@ -1,4 +1,4 @@
-import { FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt, FaPlus } from "react-icons/fa";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import Header from "./components/Header";
@@ -22,6 +22,8 @@ const orderLists = [
 function App() {
   const year = new Date().getFullYear();
   const [orders, setOrders] = useState(orderLists);
+  const [newTech, setNewTech] = useState("");
+  const [search, setSearch] = useState("");
 
   const handleChange = (event) => {
     const id = event.target.id;
@@ -46,8 +48,51 @@ function App() {
   return (
     <div className="app">
       <Header title="Techshops" />
+
+      <form
+        className="addForm"
+        onSubmit={(e) => {
+          e.preventDefault();
+          console.log(newTech);
+          const temp = {
+            id: uuidv4(),
+            title: newTech,
+            checked: false,
+          };
+          //  setOrders([...orders, temp])
+          // setOrders((order) => [...order, temp]);
+          const newOrders = [...orders, temp];
+          setOrders(newOrders);
+        }}
+      >
+        <input
+          type="text"
+          placeholder="add tech"
+          value={newTech}
+          onChange={(e) => {
+            setNewTech(e.target.value);
+          }}
+        />
+        <button>
+          <FaPlus />
+        </button>
+      </form>
+
+      <form className="searchForm">
+        <input
+          type="text"
+          placeholder="search tech"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        />
+      </form>
+
       <Content
-        orders={orders}
+        orders={orders
+          .filter(Boolean)
+          .filter((i) => i.title.toLowerCase().includes(search.toLowerCase()))}
         handleChange={handleChange}
         handleDelete={handleDelete}
       />

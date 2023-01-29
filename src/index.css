@@ -126,7 +126,7 @@ ul li::before {
   justify-content: flex-start;
   margin: 0.5rem 0 0;
   padding: 0 0.5rem 0.25rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(238, 238, 238, 0.639);
 }
 
 .addForm label {
