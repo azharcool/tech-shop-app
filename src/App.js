@@ -21,6 +21,14 @@ const orderLists = [
   },
 ];
 
+const api = {
+  baseUrl: "http://localhost:4000",
+  endPoints: {
+    orders: "/orders",
+    shop: "/shop",
+  },
+};
+
 function App() {
   const year = new Date().getFullYear();
   const [orders, setOrders] = useState([]);
@@ -29,39 +37,66 @@ function App() {
   const [forceUpdate, setForceUpdate] = useState(false);
 
   useEffect(() => {
-    const techData = localStorage.getItem("techData");
-    const parseTechData = JSON.parse(techData);
+    fetchOrders();
+  }, []);
 
-    if (parseTechData) {
-      setOrders(parseTechData);
-    } else {
-      setOrders([]);
-    }
-  }, [forceUpdate]);
-
-  const handleChange = (event) => {
-    const id = event.target.id;
-    const updateOrderList = orders.map((i) => {
-      if (i.id === id) {
-        return {
-          ...i,
-          checked: !i.checked,
-        };
+  const fetchOrders = async () => {
+    const URL = "http://localhost:4000/orders";
+    try {
+      const response = await fetch(URL, {
+        method: "GET"
+      });
+      if (response.statusText !== "OK") {
+        throw new Error("Not Found");
       }
-      return i;
-    });
-
-    localStorage.setItem("techData", JSON.stringify(updateOrderList));
-    setOrders(updateOrderList);
+      const responseJson = await response.json();
+      setOrders(responseJson);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleDelete = (id) => {
-    const filterOrderList = orders.filter((i) => i.id !== id);
-    localStorage.setItem("techData", JSON.stringify(filterOrderList));
-    setOrders(filterOrderList);
+  const handleChange = async (event) => {
+    const id = event.target.id;
+    const findOrder = orders.find((i) => i.id === id);
+
+    try {
+      const URL = `http://localhost:4000/orders/${id}`;
+      const response = await fetch(URL, {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          checked: !findOrder.checked,
+        }),
+      });
+      fetchOrders();
+    } catch (error) {
+      // errror
+    }
   };
 
-  const handleAdd = (e) => {
+  const handleDelete = async (id) => {
+    try {
+      const URL = `http://localhost:4000/orders/${id}`;
+      const response = await fetch(URL, {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+      fetchOrders();
+    } catch (error) {
+      // errror
+    }
+    // const findOrder = orders.find((i) => i.id === id);
+    // const filterOrderList = orders.filter((i) => i.id !== id);
+    // localStorage.setItem("techData", JSON.stringify(filterOrderList));
+    // setOrders(filterOrderList);
+  };
+
+  const handleAdd = async (e) => {
     e.preventDefault();
 
     const temp = {
@@ -69,15 +104,19 @@ function App() {
       title: newTech,
       checked: false,
     };
-    //  setOrders([...orders, temp])
-    // setOrders((order) => [...order, temp]);
     try {
-      const newOrders = [...orders, temp];
-      console.log(newOrders);
-      localStorage.setItem("techData", JSON.stringify(newOrders));
-      setOrders(newOrders);
+      const URL = "http://localhost:4000/orders";
+      const response = await fetch(URL, {
+        method: "Post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(temp),
+      });
+
+      fetchOrders();
     } catch (error) {
-      console.log("error: ", error);
+      // console.log("error: ", error);
     } finally {
       setNewTech("");
     }
@@ -85,7 +124,6 @@ function App() {
 
   // Return value
   const memoizedOrderData = useMemo(() => {
-    console.log("memo calling");
     return (
       orders
         ?.filter(Boolean)
@@ -120,7 +158,7 @@ function App() {
       >
         Reset
       </button>
-      
+
       <Footer year={year} />
     </div>
   );
